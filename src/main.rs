@@ -10,11 +10,14 @@ use axum::routing::{get, get_service};
 use axum::{middleware, Router};
 
 mod error;
+mod web;
 
 #[tokio::main]
 async fn main() {
     let api_route = Router::new()
         .merge(api_routes())
+        .merge(web::login_routes::routes())
+        .layer(middleware::map_response(main_response_mapper))
         .fallback_service(static_routes());
 
     // region: Start Server
@@ -25,6 +28,12 @@ async fn main() {
         .await
         .unwrap();
     // endregion: Start Server
+}
+
+async fn main_response_mapper(res: Response) -> Response {
+    println!("->> {:<12} - main_response_mapper", "RES_MAPPER");
+    println!();
+    res
 }
 
 // region: Routes
