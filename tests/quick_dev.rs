@@ -6,10 +6,17 @@ use serde_json::json;
 #[tokio::test]
 async fn quick_dev() -> Result<()> {
     let hc = httpc_test::new_client("http://127.0.0.1:8080")?;
-    hc.do_get("/api1").await?.print().await?;
-    hc.do_get("/api1?endpoint=c2b").await?.print().await?;
-    hc.do_get("/api2/b2c").await?.print().await?;
-    // hc.do_get("/src/main.rs").await?.print().await?;
-    // let req_login = hc.do_post(".api/login", json!({"username": "demo1", "pwd": "welcome"}));
+    hc.do_get("/api").await?.print().await?;
+    hc.do_get("/api?endpoint=c2b").await?.print().await?;
+    hc.do_get("/api/b2c").await?.print().await?;
+    // hc.do_get("/tests/quick_dev.rs").await?.print().await?;
+    let req_login = hc.do_post(
+        "/auth/login",
+        json!({
+            "username": "demo1",
+            "password": "welcome"
+        }),
+    );
+    req_login.await?.print().await?;
     Ok(())
 }
