@@ -11,7 +11,7 @@ async fn quick_dev() -> Result<()> {
     hc.do_get("/api/b2c").await?.print().await?;
     // hc.do_get("/tests/quick_dev.rs").await?.print().await?;
     let req_login = hc.do_post(
-        "/auth/login",
+        "/api/login",
         json!({
             "username": "demo1",
             "password": "welcome"

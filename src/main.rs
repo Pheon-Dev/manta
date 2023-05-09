@@ -19,7 +19,9 @@ mod web;
 async fn main() -> Result<()> {
     // Initialise Model Controller
     let mc = ModelController::new().await?;
-    let routes_apis = web::c2b_sim_routes::routes(mc.clone());
+
+    let routes_apis = web::c2b_sim_routes::routes(mc.clone())
+        .route_layer(middleware::from_fn(web::mw_auth::mw_require_auth));
 
     let api_route = Router::new()
         .merge(api_routes())
