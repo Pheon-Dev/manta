@@ -11,6 +11,7 @@ use axum::routing::{get, get_service};
 use axum::{middleware, Router};
 
 mod error;
+mod model;
 mod web;
 
 #[tokio::main]
