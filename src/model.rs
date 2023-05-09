@@ -1,3 +1,4 @@
+use crate::ctx::Ctx;
 use crate::{Error, Result};
 use serde::{Deserialize, Serialize};
 use std::sync::{Arc, Mutex};
@@ -7,7 +8,8 @@ use std::sync::{Arc, Mutex};
 // C2B Simulate API Endpoint
 #[derive(Debug, Clone, Serialize)]
 pub struct C2BSimulateRequest {
-    pub id: u64, // command ID
+    pub id: u64,  // command ID
+    pub cid: u64, // creator user_id
     pub amount: u32,
     pub msisdn: String,      // phone number
     pub description: String, // bill ref number
@@ -42,12 +44,14 @@ impl ModelController {
 impl ModelController {
     pub async fn c2b_simulate_create(
         &self,
+        ctx: Ctx,
         c2b_src: C2BSimulateRequestCreate,
     ) -> Result<C2BSimulateRequest> {
         let mut store = self.c2b_simulate_store.lock().unwrap();
         let id = store.len() as u64;
         let c2b_sim_req = C2BSimulateRequest {
             id,
+            cid: ctx.user_id(),
             amount: c2b_src.amount,
             msisdn: c2b_src.msisdn,
             description: c2b_src.description,
@@ -58,13 +62,13 @@ impl ModelController {
         Ok(c2b_sim_req)
     }
 
-    pub async fn c2b_simulate_list(&self) -> Result<Vec<C2BSimulateRequest>> {
+    pub async fn c2b_simulate_list(&self, _ctx: Ctx) -> Result<Vec<C2BSimulateRequest>> {
         let store = self.c2b_simulate_store.lock().unwrap();
         let c2b_sim_reqs = store.iter().filter_map(|t| t.clone()).collect();
         Ok(c2b_sim_reqs)
     }
 
-    pub async fn c2b_simulate_delete(&self, id: u64) -> Result<C2BSimulateRequest> {
+    pub async fn c2b_simulate_delete(&self, _ctx: Ctx, id: u64) -> Result<C2BSimulateRequest> {
         let mut store = self.c2b_simulate_store.lock().unwrap();
         let c2b_sim_req = store.get_mut(id as usize).and_then(|t| t.take());
 

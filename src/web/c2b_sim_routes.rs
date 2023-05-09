@@ -1,3 +1,4 @@
+use crate::ctx::Ctx;
 use axum::extract::{Path, State};
 use axum::routing::{delete, post};
 use axum::{Json, Router};
@@ -18,29 +19,30 @@ pub fn routes(mc: ModelController) -> Router {
 // region: --- REST Handler
 async fn create_c2b_sim_req(
     State(mc): State<ModelController>,
+    ctx: Ctx,
     Json(c2b_src): Json<C2BSimulateRequestCreate>,
 ) -> Result<Json<C2BSimulateRequest>> {
     println!("->> {:<12} - create_c2b_sim_req", "HANDLER");
-    let c2b_sim_req = mc.c2b_simulate_create(c2b_src).await?;
+    let c2b_sim_req = mc.c2b_simulate_create(ctx, c2b_src).await?;
     Ok(Json(c2b_sim_req))
 }
 
 async fn list_c2b_sim_req(
     State(mc): State<ModelController>,
+    ctx: Ctx,
 ) -> Result<Json<Vec<C2BSimulateRequest>>> {
     println!("->> {:<12} - list_c2b_sim_reqs", "HANDLER");
-    let c2b_sim_reqs = mc.c2b_simulate_list().await?;
+    let c2b_sim_reqs = mc.c2b_simulate_list(ctx).await?;
     Ok(Json(c2b_sim_reqs))
 }
 
 async fn delete_c2b_sim_req(
     State(mc): State<ModelController>,
-    // ctx: Ctx,
+    ctx: Ctx,
     Path(id): Path<u64>,
 ) -> Result<Json<C2BSimulateRequest>> {
     println!("->> {:<12} - delete_c2b_sim_req", "HANDLER");
-    // let c2b_sim_req = mc.c2b_simulate_delete(ctx, id).await?;
-    let c2b_sim_req = mc.c2b_simulate_delete(id).await?;
+    let c2b_sim_req = mc.c2b_simulate_delete(ctx, id).await?;
     Ok(Json(c2b_sim_req))
 }
 
