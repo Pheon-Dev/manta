@@ -11,6 +11,7 @@ use axum::response::{Html, IntoResponse, Response};
 use axum::routing::{get, get_service};
 use axum::{middleware, Router};
 
+mod ctx;
 mod error;
 mod model;
 mod web;
