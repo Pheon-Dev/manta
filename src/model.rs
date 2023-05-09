@@ -9,7 +9,7 @@ use std::sync::{Arc, Mutex};
 pub struct C2BSimulateRequest {
     pub id: u64, // command ID
     pub amount: u32,
-    pub msisdn: u64,         // phone number
+    pub msisdn: String,      // phone number
     pub description: String, // bill ref number
     pub shortcode: u32,      // till or paybill number
 }
@@ -17,7 +17,7 @@ pub struct C2BSimulateRequest {
 #[derive(Deserialize)]
 pub struct C2BSimulateRequestCreate {
     pub amount: u32,
-    pub msisdn: u64,
+    pub msisdn: String,
     pub description: String,
     pub shortcode: u32,
 }

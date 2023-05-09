@@ -23,7 +23,7 @@ async fn quick_dev() -> Result<()> {
         "/api/c2b/simulate",
         json!({
             "amount": 100,
-            "msisdn": 100,
+            "msisdn": "254746638248",
             "description": "Lorem ipsum dolor sit amet, qui minim labore adipisicing minim sint cillum sint consectetur cupidatat.",
             "shortcode": 785868,
             
@@ -32,6 +32,7 @@ async fn quick_dev() -> Result<()> {
     
     req_create_c2b_simulate.await?.print().await?;
     hc.do_get("/api/c2b/simulate").await?.print().await?;
+    // hc.do_delete("/api/c2b/simulate/0").await?.print().await?;
     
     Ok(())
 }
