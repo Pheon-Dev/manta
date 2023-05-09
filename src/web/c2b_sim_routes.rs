@@ -1,8 +1,19 @@
 use axum::extract::{Path, State};
-use axum::Json;
+use axum::routing::{delete, post};
+use axum::{Json, Router};
 
 use crate::model::{C2BSimulateRequest, C2BSimulateRequestCreate, ModelController};
 use crate::Result;
+
+pub fn routes(mc: ModelController) -> Router {
+    Router::new()
+        .route(
+            "/c2b/simulate",
+            post(create_c2b_sim_req).get(list_c2b_sim_req),
+        )
+        .route("/c2b/simulate/:id", delete(delete_c2b_sim_req))
+        .with_state(mc)
+}
 
 // region: --- REST Handler
 async fn create_c2b_sim_req(

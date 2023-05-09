@@ -11,7 +11,7 @@ pub struct C2BSimulateRequest {
     pub amount: u32,
     pub msisdn: u64,         // phone number
     pub description: String, // bill ref number
-    pub shortcode: u16,      // till or paybill number
+    pub shortcode: u32,      // till or paybill number
 }
 
 #[derive(Deserialize)]
@@ -19,7 +19,7 @@ pub struct C2BSimulateRequestCreate {
     pub amount: u32,
     pub msisdn: u64,
     pub description: String,
-    pub shortcode: u16,
+    pub shortcode: u32,
 }
 // endregion:  --- API Types
 

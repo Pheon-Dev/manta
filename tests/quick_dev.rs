@@ -18,5 +18,20 @@ async fn quick_dev() -> Result<()> {
         }),
     );
     req_login.await?.print().await?;
+
+    let req_create_c2b_simulate = hc.do_post(
+        "/api/c2b/simulate",
+        json!({
+            "amount": 100,
+            "msisdn": 100,
+            "description": "Lorem ipsum dolor sit amet, qui minim labore adipisicing minim sint cillum sint consectetur cupidatat.",
+            "shortcode": 785868,
+            
+        }),
+    );
+    
+    req_create_c2b_simulate.await?.print().await?;
+    hc.do_get("/api/c2b/simulate").await?.print().await?;
+    
     Ok(())
 }

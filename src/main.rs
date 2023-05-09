@@ -1,3 +1,4 @@
+use crate::model::ModelController;
 use axum::extract::{Path, Query};
 use serde::Deserialize;
 use std::net::SocketAddr;
@@ -15,10 +16,15 @@ mod model;
 mod web;
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<()> {
+    // Initialise Model Controller
+    let mc = ModelController::new().await?;
+    let routes_apis = web::c2b_sim_routes::routes(mc.clone());
+
     let api_route = Router::new()
         .merge(api_routes())
         .merge(web::login_routes::routes())
+        .nest("/api", routes_apis)
         .layer(middleware::map_response(main_response_mapper))
         .layer(CookieManagerLayer::new())
         .fallback_service(static_routes());
@@ -31,6 +37,8 @@ async fn main() {
         .await
         .unwrap();
     // endregion: Start Server
+
+    Ok(())
 }
 
 async fn main_response_mapper(res: Response) -> Response {
