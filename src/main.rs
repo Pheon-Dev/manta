@@ -1,3 +1,4 @@
+#![allow(unused)]
 use crate::model::ModelController;
 use axum::extract::{Path, Query};
 use serde::Deserialize;
@@ -71,7 +72,7 @@ struct MantaParams {
 // .e.g '/api/c2b'
 async fn handler_endpoint(Path(endpoint): Path<String>) -> impl IntoResponse {
     println!("->> {:<12} - handler_endpoint - {endpoint:?}", "HANDLER");
-    Html(format!("<h1>APIv2: {endpoint}</h1>"))
+    Html(format!("<h1>API: {endpoint}</h1>"))
 }
 
 // .e.g '/api?endpoint=c2b'
@@ -79,6 +80,6 @@ async fn handler_ep_query(Query(params): Query<MantaParams>) -> impl IntoRespons
     println!("->> {:<12} - handler_ep_query - {params:?}", "HANDLER");
 
     let endpoint = params.endpoint.as_deref().unwrap_or("c2b");
-    Html(format!("<h1>APIv1: {endpoint}</h1>"))
+    Html(format!("<h1>API: {endpoint}</h1>"))
 }
 // endregion: Handler
