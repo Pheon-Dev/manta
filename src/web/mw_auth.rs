@@ -41,7 +41,7 @@ pub async fn mw_ctx_resolver<B>(
         .and_then(parse_token)
     {
         Ok((user_id, _exp, _sign)) => {
-            // TODO: Token Components validations
+            // TODO: Expensive Token Components validations
             Ok(Ctx::new(user_id))
         }
         Err(e) => Err(e),
@@ -51,6 +51,9 @@ pub async fn mw_ctx_resolver<B>(
     if result_ctx.is_err() && !matches!(result_ctx, Err(Error::AuthFailNoAuthTokenCookie)) {
         cookies.remove(Cookie::named(AUTH_TOKEN))
     }
+
+    // Store the result_ctx in the request extension
+    req.extensions_mut().insert(result_ctx);
 
     Ok(next.run(req).await)
 }
@@ -64,18 +67,11 @@ impl<S: Send + Sync> FromRequestParts<S> for Ctx {
         print!("->> {:<12} - Ctx\n", "EXTRACTOR");
 
         // user the cookies extrator
-        let cookies = parts.extract::<Cookies>().await.unwrap();
-
-        let auth_token = cookies.get(AUTH_TOKEN).map(|c| c.value().to_string());
-
-        // Parse token
-        let (user_id, exp, sign) = auth_token
-            // auth_token
-            .ok_or(Error::AuthFailNoAuthTokenCookie)
-            .and_then(parse_token)?;
-
-        // TODO: Token components validation
-        Ok(Ctx::new(user_id))
+        parts
+            .extensions
+            .get::<Result<Ctx>>()
+            .ok_or(Error::AuthFailCtxNotInRequestExt)?
+            .clone()
     }
 }
 // endregion:   --- Ctx Extrator
