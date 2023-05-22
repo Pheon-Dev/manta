@@ -6,6 +6,7 @@ use axum::{Json, Router};
 use crate::model::{C2BSimulateRequest, C2BSimulateRequestCreate, ModelController};
 use crate::Result;
 
+/// Sample API Endpoint
 pub fn routes(mc: ModelController) -> Router {
     Router::new()
         .route(
@@ -17,6 +18,16 @@ pub fn routes(mc: ModelController) -> Router {
 }
 
 // region: --- REST Handler
+/// create .e.g '/api/c2b/simulate'
+#[utoipa::path(
+    post,
+    path = "/api/c2b/simulate",
+    params(C2BSimulateRequestCreate),
+    responses((
+        status = 200,
+        body = [ModelController]
+    ), (status = 404))
+)]
 async fn create_c2b_sim_req(
     State(mc): State<ModelController>,
     ctx: Ctx,
@@ -27,6 +38,15 @@ async fn create_c2b_sim_req(
     Ok(Json(c2b_sim_req))
 }
 
+/// list .e.g '/api/c2b/simulate'
+#[utoipa::path(
+    get,
+    path = "/api/c2b/simulate",
+    responses((
+        status = 200,
+        // body = [ModelController]
+    ), (status = 404))
+)]
 async fn list_c2b_sim_req(
     State(mc): State<ModelController>,
     ctx: Ctx,
@@ -36,6 +56,15 @@ async fn list_c2b_sim_req(
     Ok(Json(c2b_sim_reqs))
 }
 
+/// delete .e.g '/api/c2b/simulate/:id'
+#[utoipa::path(
+    delete,
+    path = "/api/c2b/simulate/:id",
+    responses((
+        status = 200,
+        // body = [ModelController]
+    ), (status = 404))
+)]
 async fn delete_c2b_sim_req(
     State(mc): State<ModelController>,
     ctx: Ctx,
