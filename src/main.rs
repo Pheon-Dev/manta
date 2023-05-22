@@ -1,6 +1,6 @@
 #![allow(unused)]
 use crate::log::log_request;
-use crate::model::ModelController;
+use crate::model::{C2BSimulateRequest, ModelController};
 use axum::extract::{Path, Query};
 use axum::http::{Method, Uri};
 use ctx::Ctx;
@@ -9,6 +9,8 @@ use serde_json::json;
 use std::net::SocketAddr;
 use tower_cookies::CookieManagerLayer;
 use tower_http::services::ServeDir;
+use utoipa::OpenApi;
+use utoipa_swagger_ui::SwaggerUi;
 use uuid::Uuid;
 
 pub use self::error::{Error, Result};
@@ -23,6 +25,25 @@ mod log;
 mod model;
 mod web;
 
+#[derive(OpenApi)]
+#[openapi(
+    paths(
+        handler_ep_query,
+        handler_endpoint,
+        web::login_routes::login_api,
+        web::c2b_sim_routes::create_c2b_sim_req,
+        web::c2b_sim_routes::list_c2b_sim_req,
+        web::c2b_sim_routes::delete_c2b_sim_req,
+
+    ),
+    components(
+        schemas(C2BSimulateRequest)
+    ),
+    tags((name = "Manta API", description = "Money Transfer API Endpoints"))
+)]
+
+struct ApiDoc;
+
 #[tokio::main]
 async fn main() -> Result<()> {
     // Initialise Model Controller
@@ -35,6 +56,7 @@ async fn main() -> Result<()> {
         .merge(api_routes())
         .merge(web::login_routes::routes())
         .nest("/api", routes_apis)
+        .merge(SwaggerUi::new("/swagger-ui").url("/api-doc/openapi.json", ApiDoc::openapi()))
         .layer(middleware::map_response(main_response_mapper))
         .layer(middleware::from_fn_with_state(
             mc.clone(),
@@ -111,13 +133,30 @@ struct MantaParams {
 
 // region: Handler
 
-// .e.g '/api/c2b'
+/// Sample API Endpoint
+/// .e.g '/api/c2b'
+#[utoipa::path(
+    get,
+    path = "/api",
+    responses((
+        status = 200,
+        // body = [ModelController]
+    ), (status = 404))
+)]
 async fn handler_endpoint(Path(endpoint): Path<String>) -> impl IntoResponse {
     println!("->> {:<12} - handler_endpoint - {endpoint:?}", "HANDLER");
     Html(format!("<h1>API: {endpoint}</h1>"))
 }
 
-// .e.g '/api?endpoint=c2b'
+/// .e.g '/api?endpoint=c2b'
+#[utoipa::path(
+    get,
+    path = "/api/:endpoint",
+    responses((
+        status = 200,
+        // body = [ModelController]
+    ), (status = 404))
+)]
 async fn handler_ep_query(Query(params): Query<MantaParams>) -> impl IntoResponse {
     println!("->> {:<12} - handler_ep_query - {params:?}", "HANDLER");
 
