@@ -2,11 +2,12 @@ use crate::ctx::Ctx;
 use crate::{Error, Result};
 use serde::{Deserialize, Serialize};
 use std::sync::{Arc, Mutex};
+use utoipa::{ToSchema, IntoParams};
 
 // region:  --- API Types
 
 // C2B Simulate API Endpoint
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, ToSchema)]
 pub struct C2BSimulateRequest {
     pub id: u64,  // command ID
     pub cid: u64, // creator user_id
@@ -16,7 +17,7 @@ pub struct C2BSimulateRequest {
     pub shortcode: u32,      // till or paybill number
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, IntoParams)]
 pub struct C2BSimulateRequestCreate {
     pub amount: u32,
     pub msisdn: String,
