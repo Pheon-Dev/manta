@@ -15,7 +15,7 @@ pub enum Error {
     AuthFailCtxNotInRequestExt,
 
     // -- Model Errors
-    C2BSimulateDeleteFailIdNotFound { id: u64 },
+    SendDeleteFailIdNotFound {id:u64},
 }
 
 impl IntoResponse for Error {
@@ -41,7 +41,7 @@ impl Error {
             | Self::AuthFailCtxNotInRequestExt => (StatusCode::FORBIDDEN, ClientError::NO_AUTH),
 
             // -- Model
-            Self::C2BSimulateDeleteFailIdNotFound { .. } => {
+            Self::SendDeleteFailIdNotFound { .. } => {
                 (StatusCode::BAD_REQUEST, ClientError::INVALID_PARAMS)
             }
 

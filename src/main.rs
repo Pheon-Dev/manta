@@ -1,6 +1,6 @@
 #![allow(unused)]
 use crate::log::log_request;
-use crate::model::{C2BSimulateRequest, C2BSimulateRequestCreate, ModelController};
+use crate::model::{ModelController, SendRequest, SendRequestCreate};
 use crate::web::login_routes::{LoginPayload, LoginResponse};
 use axum::extract::{Path, Query};
 use axum::http::{Method, Uri};
@@ -29,16 +29,13 @@ mod web;
 #[derive(OpenApi)]
 #[openapi(
     paths(
-        handler_ep_query,
-        handler_endpoint,
         web::login_routes::login_api,
-        web::c2b_sim_routes::create_c2b_sim_req,
-        web::c2b_sim_routes::list_c2b_sim_req,
-        web::c2b_sim_routes::delete_c2b_sim_req,
-
+        web::send_routes::create_send_req,
+        web::send_routes::list_send_req,
+        web::send_routes::delete_send_req,
     ),
     components(
-        schemas(C2BSimulateRequest, C2BSimulateRequestCreate, LoginPayload, LoginResponse)
+        schemas(LoginPayload, LoginResponse, SendRequest, SendRequestCreate)
     ),
     tags((name = "Manta API", description = "Money Transfer API Endpoints"))
 )]
@@ -50,13 +47,12 @@ async fn main() -> Result<()> {
     // Initialise Model Controller
     let mc = ModelController::new().await?;
 
-    let routes_apis = web::c2b_sim_routes::routes(mc.clone())
+    let send_api = web::send_routes::routes(mc.clone())
         .route_layer(middleware::from_fn(web::mw_auth::mw_require_auth));
 
     let api_route = Router::new()
-        .merge(api_routes())
         .merge(web::login_routes::routes())
-        .nest("/api", routes_apis)
+        .nest("/api", send_api)
         .merge(SwaggerUi::new("/swagger-ui").url("/api-doc/openapi.json", ApiDoc::openapi()))
         .layer(middleware::map_response(main_response_mapper))
         .layer(middleware::from_fn_with_state(
@@ -116,52 +112,7 @@ async fn main_response_mapper(
     error_response.unwrap_or(res)
 }
 
-// region: Routes
-fn api_routes() -> Router {
-    Router::new()
-        .route("/api", get(handler_ep_query))
-        .route("/api/:endpoint", get(handler_endpoint))
-}
 
 fn static_routes() -> Router {
     Router::new().nest_service("/", get_service(ServeDir::new("./")))
 }
-
-#[derive(Debug, Deserialize)]
-struct MantaParams {
-    endpoint: Option<String>,
-}
-
-// region: Handler
-
-/// Sample API Endpoint
-/// .e.g '/api/c2b'
-#[utoipa::path(
-    get,
-    path = "/api",
-    responses((
-        status = 200,
-        // body = [ModelController]
-    ), (status = 404))
-)]
-async fn handler_endpoint(Path(endpoint): Path<String>) -> impl IntoResponse {
-    println!("->> {:<12} - handler_endpoint - {endpoint:?}", "HANDLER");
-    Html(format!("<h1>API: {endpoint}</h1>"))
-}
-
-/// .e.g '/api?endpoint=c2b'
-#[utoipa::path(
-    get,
-    path = "/api/:endpoint",
-    responses((
-        status = 200,
-        // body = [ModelController]
-    ), (status = 404))
-)]
-async fn handler_ep_query(Query(params): Query<MantaParams>) -> impl IntoResponse {
-    println!("->> {:<12} - handler_ep_query - {params:?}", "HANDLER");
-
-    let endpoint = params.endpoint.as_deref().unwrap_or("c2b");
-    Html(format!("<h1>API: {endpoint}</h1>"))
-}
-// endregion: Handler

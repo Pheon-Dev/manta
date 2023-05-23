@@ -6,77 +6,72 @@ use utoipa::{IntoParams, ToSchema};
 
 // region:  --- API Types
 
-// C2B Simulate API Endpoint
+
+// Send API Endpoint
 #[derive(Debug, Clone, Serialize, ToSchema)]
-pub struct C2BSimulateRequest {
-    pub id: u64,  // command ID
-    pub cid: u64, // creator user_id
+pub struct SendRequest {
+    pub id: u64,
+    pub cid: u64,
     pub amount: u32,
-    pub msisdn: String,      // phone number
-    pub description: String, // bill ref number
-    pub shortcode: u32,      // till or paybill number
+    pub receiver: String,
+    pub description: String,
 }
 
 #[derive(Deserialize, ToSchema)]
-pub struct C2BSimulateRequestCreate {
+pub struct SendRequestCreate {
     pub amount: u32,
-    pub msisdn: String,
+    pub receiver: String,
     pub description: String,
-    pub shortcode: u32,
 }
+
 // endregion:  --- API Types
 
 // region:  --- Model Controller
 #[derive(Clone)]
 pub struct ModelController {
-    c2b_simulate_store: Arc<Mutex<Vec<Option<C2BSimulateRequest>>>>,
+    send_store: Arc<Mutex<Vec<Option<SendRequest>>>>,
 }
 
 // Constructor
 impl ModelController {
     pub async fn new() -> Result<Self> {
         Ok(Self {
-            c2b_simulate_store: Arc::default(),
+            send_store: Arc::default(),
         })
     }
 }
 
 // CRUD Implementations
 impl ModelController {
-    pub async fn c2b_simulate_create(
-        &self,
-        ctx: Ctx,
-        c2b_src: C2BSimulateRequestCreate,
-    ) -> Result<C2BSimulateRequest> {
-        let mut store = self.c2b_simulate_store.lock().unwrap();
+
+    pub async fn send_create(&self, ctx: Ctx, send_src: SendRequestCreate) -> Result<SendRequest> {
+        let mut store = self.send_store.lock().unwrap();
         let id = store.len() as u64;
-        let c2b_sim_req = C2BSimulateRequest {
+        let send_req = SendRequest {
             id,
             cid: ctx.user_id(),
-            amount: c2b_src.amount,
-            msisdn: c2b_src.msisdn,
-            description: c2b_src.description,
-            shortcode: c2b_src.shortcode,
+            amount: send_src.amount,
+            receiver: send_src.receiver,
+            description: send_src.description,
         };
-        store.push(Some(c2b_sim_req.clone()));
-
-        Ok(c2b_sim_req)
+        store.push(Some(send_req.clone()));
+        Ok(send_req)
     }
 
-    pub async fn c2b_simulate_list(&self, _ctx: Ctx) -> Result<Vec<C2BSimulateRequest>> {
-        let store = self.c2b_simulate_store.lock().unwrap();
-        let c2b_sim_reqs = store.iter().filter_map(|t| t.clone()).collect();
-        Ok(c2b_sim_reqs)
+    pub async fn send_list(&self, _ctx: Ctx) -> Result<Vec<SendRequest>> {
+        let store = self.send_store.lock().unwrap();
+        let send_reqs = store.iter().filter_map(|t| t.clone()).collect();
+        Ok(send_reqs)
     }
 
-    pub async fn c2b_simulate_delete(&self, _ctx: Ctx, id: u64) -> Result<C2BSimulateRequest> {
-        let mut store = self.c2b_simulate_store.lock().unwrap();
-        let c2b_sim_req = store.get_mut(id as usize).and_then(|t| t.take());
 
-        c2b_sim_req.ok_or(Error::C2BSimulateDeleteFailIdNotFound { id })
+    pub async fn send_delete(&self, _ctx: Ctx, id: u64) -> Result<SendRequest> {
+
+        let mut store = self.send_store.lock().unwrap();
+        let send_req = store.get_mut(id as usize).and_then(|t| t.take());
+
+send_req.ok_or(Error::SendDeleteFailIdNotFound { id })
     }
-
-    // pub async fn c2b_simulate_get(&self, id: u64) -> Result<Option<C2BSimulateRequest>> {}
 }
 
 // endregion:  --- Model Controller
