@@ -16,11 +16,12 @@ pub fn routes() -> Router {
 #[utoipa::path(
     post,
     path = "/api/login",
-    params(LoginPayload),
-    responses((
-        status = 200,
-        // body = [ModelController]
-    ), (status = 404))
+    request_body = LoginPayload,
+    // params(LoginPayload),
+    responses(
+        (status = 200, description = "Login Success", body = LoginResponse),
+         (status = 404, description = "Login Fail"),
+    )
 )]
 async fn login_api(cookies: Cookies, payload: Json<LoginPayload>) -> Result<Json<Value>> {
     println!("->> {:<12} - login_api", "HANDLER");
@@ -34,16 +35,22 @@ async fn login_api(cookies: Cookies, payload: Json<LoginPayload>) -> Result<Json
     cookies.add(Cookie::new(web::AUTH_TOKEN, "user-1.exp.sign"));
 
     // success body
-    let body = Json(json!({"result": {
+    let body = Json(json!({
         "action": "login",
         "success": true
-    }}));
+    }));
 
     Ok(body)
 }
 
-#[derive(Debug, Deserialize, IntoParams)]
-struct LoginPayload {
-    username: String,
-    password: String,
+#[derive(Debug, Deserialize, ToSchema)]
+pub struct LoginResponse {
+    pub action: String,
+    pub success: bool,
+}
+
+#[derive(Debug, Deserialize, ToSchema)]
+pub struct LoginPayload {
+    pub username: String,
+    pub password: String,
 }

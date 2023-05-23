@@ -22,10 +22,11 @@ pub fn routes(mc: ModelController) -> Router {
 #[utoipa::path(
     post,
     path = "/api/c2b/simulate",
-    params(C2BSimulateRequestCreate),
+    request_body = C2BSimulateRequestCreate,
+    // params(C2BSimulateRequestCreate),
     responses((
         status = 200,
-        body = [ModelController]
+        body = [C2BSimulateRequest]
     ), (status = 404))
 )]
 async fn create_c2b_sim_req(
@@ -44,7 +45,7 @@ async fn create_c2b_sim_req(
     path = "/api/c2b/simulate",
     responses((
         status = 200,
-        // body = [ModelController]
+        body = [C2BSimulateRequest]
     ), (status = 404))
 )]
 async fn list_c2b_sim_req(
@@ -59,7 +60,8 @@ async fn list_c2b_sim_req(
 /// delete .e.g '/api/c2b/simulate/:id'
 #[utoipa::path(
     delete,
-    path = "/api/c2b/simulate/:id",
+    path = "/api/c2b/simulate/{id}",
+    params(("id"= u64, Path, description = "Transaction ID")),
     responses((
         status = 200,
         // body = [ModelController]

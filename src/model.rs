@@ -2,7 +2,7 @@ use crate::ctx::Ctx;
 use crate::{Error, Result};
 use serde::{Deserialize, Serialize};
 use std::sync::{Arc, Mutex};
-use utoipa::{ToSchema, IntoParams};
+use utoipa::{IntoParams, ToSchema};
 
 // region:  --- API Types
 
@@ -17,7 +17,7 @@ pub struct C2BSimulateRequest {
     pub shortcode: u32,      // till or paybill number
 }
 
-#[derive(Deserialize, IntoParams)]
+#[derive(Deserialize, ToSchema)]
 pub struct C2BSimulateRequestCreate {
     pub amount: u32,
     pub msisdn: String,

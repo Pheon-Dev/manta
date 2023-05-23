@@ -1,6 +1,7 @@
 #![allow(unused)]
 use crate::log::log_request;
-use crate::model::{C2BSimulateRequest, ModelController};
+use crate::model::{C2BSimulateRequest, C2BSimulateRequestCreate, ModelController};
+use crate::web::login_routes::{LoginPayload, LoginResponse};
 use axum::extract::{Path, Query};
 use axum::http::{Method, Uri};
 use ctx::Ctx;
@@ -37,7 +38,7 @@ mod web;
 
     ),
     components(
-        schemas(C2BSimulateRequest)
+        schemas(C2BSimulateRequest, C2BSimulateRequestCreate, LoginPayload, LoginResponse)
     ),
     tags((name = "Manta API", description = "Money Transfer API Endpoints"))
 )]
